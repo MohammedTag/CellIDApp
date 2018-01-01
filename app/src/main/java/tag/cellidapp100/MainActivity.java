@@ -45,6 +45,8 @@ public class MainActivity extends AppCompatActivity {
     TelephonyManager tm;
 
     RequestQueue rq;
+    JsonObjectRequest requested;
+
     String url = "    https://ap1.unwiredlabs.com/v2/process.php";
 
     private Handler handler;
@@ -74,14 +76,14 @@ public class MainActivity extends AppCompatActivity {
 
 
         //requesting the form of request body
-        reqJsonformat = formTheRequest(this);
+       // reqJsonformat = formTheRequest(this);
 
         //post request initiallization
         rq = Volley.newRequestQueue(this);
 
 
                 //requesting
-                JsonObjectRequest requested =new JsonObjectRequest(Request.Method.POST, url, reqJsonformat, new Response.Listener<JSONObject>() {
+                /*JsonObjectRequest requested =new JsonObjectRequest(Request.Method.POST, url, reqJsonformat, new Response.Listener<JSONObject>() {
                     @Override
                     public void onResponse(JSONObject response) {
                         result=response;
@@ -100,13 +102,13 @@ public class MainActivity extends AppCompatActivity {
                     }
                 });
 
-                rq.add(requested);
+                rq.add(requested);*/
 
 
 
 
 
-        gotomap.setOnClickListener(new View.OnClickListener() {
+       /* gotomap.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -117,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
 
             }
-        });
+        });*/
 
         //show.setText(reqJsonformat.toString());
 
@@ -133,9 +135,38 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void run() {
 
+            //requesting the form of request body
+            reqJsonformat = formTheRequest(getApplicationContext());
+
+             requested =new JsonObjectRequest(Request.Method.POST, url, reqJsonformat, new Response.Listener<JSONObject>() {
+                @Override
+                public void onResponse(JSONObject response) {
+                    result=response;
+                    try {
+                        latit=result.getDouble("lat");
+                        longtit =result.getDouble("lon");
+                    }catch (Exception e){}
+                    //showresponse.setText(String.valueOf(latit));
+
+                   show.setText(result.toString());
+                }
+            }, new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+
+                }
+            });
+
+            rq.add(requested);
+            showresponse.setText(reqJsonformat.toString());
+
+
             handl.postDelayed(thread,2000);
         }
     };
+
+
+
     //permission check method
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
