@@ -2,8 +2,10 @@ package tag.cellidapp100;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.wifi.WifiManager;
+import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -16,6 +18,8 @@ import android.telephony.CellInfoGsm;
 import android.telephony.TelephonyManager;
 import android.telephony.gsm.GsmCellLocation;
 import android.text.TextUtils;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.android.volley.Request;
@@ -33,13 +37,17 @@ import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
+    Button gotomap;
     TextView show,showresponse;
     JSONObject reqJsonformat,result;
+    Double latit,longtit;
 
     TelephonyManager tm;
 
     RequestQueue rq;
-    String url;
+    String url = "    https://ap1.unwiredlabs.com/v2/process.php";
+
+    private Handler handler;
 
     private final static int ACCESS_COARSE_ID = 109;
     private final static int READ_STATE_ID = 100;
@@ -62,35 +70,72 @@ public class MainActivity extends AppCompatActivity {
         //intiallization
         show = (TextView) findViewById(R.id.show);
         showresponse = (TextView) findViewById(R.id.showResult);
-        url = "    https://ap1.unwiredlabs.com/v2/process.php";
+        gotomap = (Button)findViewById(R.id.gotomap);
+
 
         //requesting the form of request body
         reqJsonformat = formTheRequest(this);
 
+        //post request initiallization
         rq = Volley.newRequestQueue(this);
 
-        JsonObjectRequest requested =new JsonObjectRequest(Request.Method.POST, url, reqJsonformat, new Response.Listener<JSONObject>() {
-            @Override
-            public void onResponse(JSONObject response) {
-                result=response;
-                showresponse.setText(result.toString());
 
-                show.setText(reqJsonformat.toString());
-            }
-        }, new Response.ErrorListener() {
+                //requesting
+                JsonObjectRequest requested =new JsonObjectRequest(Request.Method.POST, url, reqJsonformat, new Response.Listener<JSONObject>() {
+                    @Override
+                    public void onResponse(JSONObject response) {
+                        result=response;
+                        try {
+                            latit=result.getDouble("lat");
+                            longtit =result.getDouble("lon");
+                        }catch (Exception e){}
+                        //showresponse.setText(String.valueOf(latit));
+
+                        show.setText(reqJsonformat.toString());
+                    }
+                }, new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                });
+
+                rq.add(requested);
+
+
+
+
+
+        gotomap.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onErrorResponse(VolleyError error) {
+            public void onClick(View view) {
+
+
+                Intent intent = new Intent(MainActivity.this,MapsActivity.class);
+               intent.putExtra("latit",latit);
+               intent.putExtra("longtit",longtit);
+                startActivity(intent);
 
             }
         });
 
-        rq.add(requested);
-
         //show.setText(reqJsonformat.toString());
 
 
+        handl.post(thread);
+
     }
 
+
+
+    Handler handl= new Handler();
+    Runnable thread = new Runnable() {
+        @Override
+        public void run() {
+
+            handl.postDelayed(thread,2000);
+        }
+    };
     //permission check method
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
@@ -148,7 +193,7 @@ public class MainActivity extends AppCompatActivity {
                             cells.put("cid", gsm.getCid());
                             cellsTowers.put(cells);
                             requestbody.put("cells", (Object) cellsTowers);
-                            requestbody.put("address", wm.getConnectionInfo().getIpAddress());
+                            requestbody.put("address", 1);
                         } catch (Exception e) {
                         }
 
@@ -166,7 +211,7 @@ public class MainActivity extends AppCompatActivity {
                     cells.put("psc", gsm.getPsc());
                     cellsTowers.put(cells);
                     requestbody.put("cells", (Object) cellsTowers);
-                    requestbody.put("address", wm.getConnectionInfo().getIpAddress());
+                    requestbody.put("address", 1);
                 } catch (Exception e) {
                 }
 

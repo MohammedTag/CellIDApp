@@ -13,14 +13,23 @@
         android:text="Hello World!"
        />
 
+    <Button
+        android:id="@+id/gotomap"
+        android:layout_centerVertical="true"
+        android:layout_centerHorizontal="true"
+        android:text="go to map"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
 
     <TextView
         android:id="@+id/showResult"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Hello World!"
+
+        android:layout_marginTop="300dp"
         android:layout_centerHorizontal="true"
-        android:layout_centerVertical="true"
         />
 
 </RelativeLayout>
